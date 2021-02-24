@@ -35,11 +35,15 @@
 
     //Constants
     const DOTS = [
-      { x: 100, y: 100 },
-      { x: 200, y: 200 },
+      { x: 100, y: 100, content: "1" },
+      { x: 200, y: 200, content: "2" },
+      { x: 270, y: 210, content: "3" },
+      { x: 180, y: 300, content: "4" },
+      { x: 50, y: 90, content: "5" },
+      { x: 400, y: 200, content: "6" },
     ];
 
-    function drawDots(canvas, color, radius) {
+    function drawDots(canvas, radius) {
       var ctx = canvas.getContext("2d");
 
       for (let i = 0; i < DOTS.length; i++) {
@@ -47,9 +51,16 @@
         let d = DOTS[i];
         ctx.beginPath();
         ctx.arc(d.x, d.y, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = color;
-        ctx.fill();
+        // ctx.fillStyle = circle_color;
+        // ctx.fill();
         ctx.closePath();
+        ctx.stroke();
+        // ctx.fillStyle = text_color; // font color to write the text with
+        var text = d.content;
+        var font = "bold " + radius + "px serif";
+        ctx.font = font;
+        ctx.textBaseline = "top";
+        ctx.fillText(text, d.x - radius / 4, d.y - radius / 2);
       }
     }
 
@@ -105,10 +116,11 @@
       type: "canvas-button-response-modified",
       stimulus: function (c) {
         // Necesito hacer los 25 circulitos
-        drawDots(c, "red", 20);
+        drawDots(c, 20);
       },
       prompt: "<p>What color is the circle?</p>",
-      data: { color: "blue", radius: 100 },
+      canvas_size: [700, 700],
+      //   data: { color: "blue", radius: 100 },
     };
 
     // let trial2 = {
