@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Connecting Dots</title>
+    <style></style>
+  </head>
+
+  <body>
+    <canvas id="dots"></canvas>
+
+    <script type="text/javascript" src="connecting-dots.js"></script>
+  </body>
+</html>
+
+var rect = c.getBoundingClientRect(), // abs. size of element scaleX = c.width /
+rect.width, // relationship bitmap vs. element for X scaleY = c.height /
+rect.height; // relationship bitmap vs. element for Y var x = (e.clientX -
+rect.left) * scaleX; //Para arrancar de (0,0) var y = (e.clientY - rect.top) *
+scaleY; //Para terminart (0,0)

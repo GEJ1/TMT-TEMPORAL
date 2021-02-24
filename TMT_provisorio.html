@@ -1,91 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- jsPsych library -->
-    <script src="jspsych/jspsych.js"></script>
-    
-     <!-- jsPsych plugins-->
-    <script src="jspsych/plugins/jspsych-fullscreen.js"></script>   
-    <script src="jspsych/plugins/jspsych-draw-and-mouse-tracking.js"></script>
-    <link rel="stylesheet" href='C:\Users\Gustavo\Desktop\REPOS\TMT_ONLINE_REPO\jsPsych_online_TMT\jspsych\css\jspsych.css'>
-</head>
-<body></body>
-<script>
+    <script src="jspsych-6.3.0/jspsych.js"></script>
 
-let timeline = [];
- 
-images = ['https://c.files.bbci.co.uk/12A9B/production/_111434467_gettyimages-1143489763.jpg',
-'https://images.unsplash.com/photo-1545315171-cc80c905c252?ixlib=rb-1.2.1&w=1000&q=80',
-'https://api.time.com/wp-content/uploads/2015/02/cats.jpg?quality=85&w=1024&h=512&crop=1']
+    <!-- SVG.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.6.3/svg.min.js"></script>
 
+    <!-- jsPsych plugins-->
+    <script src="jspsych-6.3.0/plugins/jspsych-fullscreen.js"></script>
+    <script src="jspsych-6.3.0/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jspsych-6.3.0/plugins/jspsych-canvas-button-response-modified.js"></script>
+    <script src="jspsych-6.3.0/plugins/jspsych-virtual-chinrest.js"></script>
+    <link rel="stylesheet" href="jspsych-6.3.0\css\jspsych.css" />
+  </head>
+  <body></body>
+  <script>
+    let timeline = [];
 
-let x = 0;
-let y = 0; 
-isDrawing = false;
+    images = [
+      "https://c.files.bbci.co.uk/12A9B/production/_111434467_gettyimages-1143489763.jpg",
+      "https://images.unsplash.com/photo-1545315171-cc80c905c252?ixlib=rb-1.2.1&w=1000&q=80",
+      "https://api.time.com/wp-content/uploads/2015/02/cats.jpg?quality=85&w=1024&h=512&crop=1",
+    ];
 
-// store all images names in an array of objects {'fileName': images[imag]}
-let container = { }; // main object
-timelineVariables = [];  
+    // store all images names in an array of objects {'fileName': images[imag]}
+    let container = {}; // main object
+    timelineVariables = [];
 
-for (imag in images){
-            // imag = 'stimuli/'+imag;
-            timelineVariables.push(container['prop'+ imag ]   = { 'fileName': images[imag]}
-            ); 
-            
-}
- 
-  
-   var fullScreen = {
-        type: 'fullscreen',
-        fullscreen_mode: true,
-        // message: '<p>El experimento ira a pantalla completa cuando usted presione el boton que se encuentra debajo</p><br>',
-        // button_label: 'Continuar a pantalla completa'    
-    } 
-    
-    
-  let trial = {
+    canvas = document.getElementById("jspsych-canvas-stimulus");
 
-    timeline: [
-        {
-            type: 'html-keyboard-response', //fixation cross
-            stimulus: `<p style='font-size:350%;color:black'>+</p>`,
-            choices: jsPsych.NO_KEYS,
-            trial_duration: 500
-        },
-        {
-            type: 'draw-and-mouse-tracking',
-            // trial_duration: 10000,
-            canvas_background_color: 'gray',
-            stimulus: jsPsych.timelineVariable('fileName'),
-            // drawline_color: 'red',
-            content_wrapper_color: 'gray',
-            // lineWidth: 5
-        }
-    ],
-    timeline_variables: timelineVariables
+    //Constants
+    const DOTS = [
+      { x: 100, y: 100 },
+      { x: 200, y: 200 },
+    ];
+
+    function drawDots(canvas, color, radius) {
+      var ctx = canvas.getContext("2d");
+
+      for (let i = 0; i < DOTS.length; i++) {
+        console.log(i);
+        let d = DOTS[i];
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.closePath();
+      }
     }
-    
+
+    function circleCollision(c1, c2) {
+      var a = c1.r + c2.r,
+        x = c1.x - c2.x,
+        y = c1.y - c2.y;
+
+      if (a > Math.sqrt(x * x + y * y)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    function checkForDot(e) {
+      for (let i = 0; i < DOTS.length; i++) {
+        let d = DOTS[i];
+        let c1 = { x: d.x, y: d.y, r: 50 };
+        let c2 = { x: e.pageX, y: e.pageY, r: 50 };
+        console.log(c1);
+        if (circleCollision(c1, c2)) {
+          console.log("They are colliding!");
+        }
+      }
+    }
+
+    function filledCirc(canvas, left, right, radius, color) {
+      var ctx = canvas.getContext("2d");
+      ctx.beginPath();
+      ctx.arc(left, right, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+
+    var fullScreen = {
+      type: "fullscreen",
+      fullscreen_mode: true,
+      message:
+        "<p>El experimento ira a pantalla completa cuando usted presione el boton que se encuentra debajo</p><br>",
+      button_label: "Continuar a pantalla completa",
+    };
+
+    let cm_resize = {
+      type: "virtual-chinrest",
+      blindspot_reps: 2,
+      resize_units: "cm",
+      pixels_per_unit: 50,
+      item_path: "jspsych-6.3.0/examples/img/card.png",
+    };
+
+    let trial = {
+      type: "canvas-button-response-modified",
+      stimulus: function (c) {
+        // Necesito hacer los 25 circulitos
+        drawDots(c, "red", 20);
+      },
+      prompt: "<p>What color is the circle?</p>",
+      data: { color: "blue", radius: 100 },
+    };
+
+    // let trial2 = {
+    //   type: "canvas-button-response",
+    //   stimulus: function (c) {
+    //     // Necesito hacer los 25 circulitos
+    //     filledCirc(c, 150, 250, 100, "red");
+    //     filledCirc(c, 250, 150, 100, "green");
+    //     filledCirc(c, 250, 250, 100, "red");
+    //   },
+    //   prompt: "<p>What color is the circle?</p>",
+    //   data: { color: "red", radius: 100 },
+    // };
+
+    // let trial3 = {
+    //   type: "canvas-button-response",
+    //   stimulus: function (c) {
+    //     // Necesito hacer los 25 circulitos
+    //     filledCirc(c, 250, 150, 100, "green");
+    //   },
+    //   prompt: "<p>What color is the circle?</p>",
+    //   data: { color: "green", radius: 100 },
+    // };
+
     jsPsych.init({
-        
-        timeline: [fullScreen, trial],
-        
-        // Image data should be preloaded
-        preload_images: images, 
-        
-         on_finish: function(){
-      
+      timeline: [fullScreen, trial],
+
+      // Image data should be preloaded
+      preload_images: images,
+
+      on_finish: function () {
         // Display data
         jsPsych.data.displayData();
-        
-           
-         }
-
-        
-        });
- 
- </script>
-
+      },
+    });
+  </script>
 </html>
