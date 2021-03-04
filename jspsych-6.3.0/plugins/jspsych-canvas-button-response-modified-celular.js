@@ -8,11 +8,11 @@
  *
  **/
 
-jsPsych.plugins["canvas-button-response-modified"] = (function () {
+jsPsych.plugins["canvas-button-response-modified-celular"] = (function () {
   var plugin = {};
 
   plugin.info = {
-    name: "canvas-button-response-modified",
+    name: "canvas-button-response-modified-celular",
     description: "",
     parameters: {
       stimulus: {
@@ -112,26 +112,41 @@ jsPsych.plugins["canvas-button-response-modified"] = (function () {
     var start_time = performance.now();
 
     // add listeners for draw and mouse tracking
-    c.addEventListener("mouseup", mouseUpFunc);
+    c.addEventListener("touchend", mouseUpFunc);
 
-    c.addEventListener("mousedown", (e) => {
-      x = e.offsetX;
-      y = e.offsetY;
+    c.addEventListener("touchstart", (e) => {
+      var bcr = e.target.getBoundingClientRect();
+      x = e.pageX - bcr.x;
+      y = e.pageY - bcr.y;
       isDrawing = true;
     });
 
-    c.addEventListener("mousemove", function (e) {
+    c.addEventListener("touchmove", function (e) {
       if (isDrawing === true) {
-        drawLine(ctx, x, y, e.offsetX, e.offsetY);
-        x = e.offsetX;
-        y = e.offsetY;
+        var bcr = e.target.getBoundingClientRect();
+        drawLine(
+          ctx,
+          x,
+          y,
+          e.touches[0].pageX - bcr.x,
+          e.touches[0].pageY - bcr.y
+        );
+        x = e.touches[0].pageX - bcr.x;
+        y = e.touches[0].pageY - bcr.y;
       }
       mouseMove(e);
     });
 
-    c.addEventListener("mouseup", (e) => {
+    c.addEventListener("touchend", (e) => {
       if (isDrawing === true) {
-        drawLine(ctx, x, y, e.offsetX, e.offsetY);
+        var bcr = e.target.getBoundingClientRect();
+        drawLine(
+          ctx,
+          x,
+          y,
+          e.touches[0].pageX - bcr.x,
+          e.touches[0].pageY - bcr.y
+        );
         x = 0;
         y = 0;
         isDrawing = false;
@@ -143,12 +158,11 @@ jsPsych.plugins["canvas-button-response-modified"] = (function () {
         scaleX = c.width / rect.width, // relationship bitmap vs. element for X
         scaleY = c.height / rect.height; // relationship bitmap vs. element for Y
 
-      var x_loca = (e.clientX - rect.left) * scaleX;
-      var y_loca = (e.clientY - rect.top) * scaleY;
-
-      var coor = "(" + x_loca + "," + y_loca + ")";
-      checkForDot(x_loca, y_loca, RADIUS, isDrawing, ctx, dots_coord);
+      var x_loca = (e.touches[0].clientX - rect.left) * scaleX;
+      var y_loca = (e.touches[0].clientY - rect.top) * scaleY;
+      var coor = "(" + x + "," + y + ")";
       // console.log(coor);
+      checkForDot(x_loca, y_loca, RADIUS, isDrawing, ctx, dots_coord);
       pos_tracking.push(coor); //Save coor in array pos_tracking
 
       //timer for cursor
@@ -178,8 +192,9 @@ jsPsych.plugins["canvas-button-response-modified"] = (function () {
 
       release_click_time = performance.now();
 
+      var bcr = e.target.getBoundingClientRect();
       if (isDrawing === true) {
-        drawLine(ctx, x, y, e.offsetX, e.offsetY);
+        drawLine(ctx, x, y, e.pageX - bcr.x, e.pageY - bcr.y);
         x = 0;
         y = 0;
         isDrawing = false;
@@ -188,8 +203,9 @@ jsPsych.plugins["canvas-button-response-modified"] = (function () {
       let info = {
         key: -1,
         rt: release_click_time - start_time,
-        clickX: e.offsetX,
-        clickY: e.offsetY,
+
+        // clickX: e.touches[0].pageX - bcr.x,
+        // clickY: e.touches[0].pageY - bcr.y,
         pos_tracking: pos_tracking,
         cursor_time: cursor_time,
       };
@@ -231,7 +247,7 @@ jsPsych.plugins["canvas-button-response-modified"] = (function () {
         position: pos_tracking,
         cursor_time: cursor_time,
       };
-      c.removeEventListener("mouseup", mouseUpFunc);
+      c.removeEventListener("touchend", mouseUpFunc);
 
       // clear the display
       display_element.innerHTML = "";
