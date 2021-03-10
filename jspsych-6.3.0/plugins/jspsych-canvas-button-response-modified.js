@@ -115,8 +115,10 @@ jsPsych.plugins["canvas-button-response-modified"] = (function () {
     c.addEventListener("mouseup", mouseUpFunc);
 
     c.addEventListener("mousedown", (e) => {
-      x = e.offsetX;
+      x = e.offsetX;  
       y = e.offsetY;
+      click_x = e.offsetX;  
+      click_y = e.offsetY;
       isDrawing = true;
     });
 
@@ -147,6 +149,7 @@ jsPsych.plugins["canvas-button-response-modified"] = (function () {
       var y_loca = (e.clientY - rect.top) * scaleY;
 
       var coor = "(" + x_loca + "," + y_loca + ")";
+      console.log(coor)
       checkForDot(x_loca, y_loca, RADIUS, isDrawing, ctx, dots_coord);
       // console.log(coor);
       pos_tracking.push(coor); //Save coor in array pos_tracking
@@ -188,8 +191,8 @@ jsPsych.plugins["canvas-button-response-modified"] = (function () {
       let info = {
         key: -1,
         rt: release_click_time - start_time,
-        clickX: e.offsetX,
-        clickY: e.offsetY,
+        clickX: click_x,
+        clickY: click_y,
         pos_tracking: pos_tracking,
         cursor_time: cursor_time,
       };
